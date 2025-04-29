@@ -26,6 +26,29 @@ services:
       - traefik.http.routers.grafana.rule=Host(`${HOST_GRAFANA?}`)
       - traefik.http.routers.grafana.tls.certresolver=le
 
+  loki:
+    build: ./loki
+    platform: linux/amd64
+    restart: always
+    volumes:
+      - loki_data:/loki
+    networks:
+      - traefik
+
+  promtail:
+    build: ./promtail
+    platform: linux/amd64
+    restart: always
+    environment:
+      PROMTAIL_LABEL_HOST: lab0
+      LOKI_ORIGIN: http://loki:3100
+    volumes:
+      - promtail-positions:/promtail/positions
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker:/var/lib/docker
+    networks:
+      - traefik
+
 networks:
   traefik:
     name: traefik
@@ -34,3 +57,5 @@ networks:
 volumes:
   prometheus_data:
   grafana-data:
+  loki_data:
+  promtail-positions:
