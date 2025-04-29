@@ -1,0 +1,36 @@
+name: monitoring
+services:
+  prometheus:
+    build: ./prometheus
+    restart: always
+    volumes:
+      - prometheus_data:/prometheus
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.prometheus.loadbalancer.server.port=9090
+      - traefik.http.routers.prometheus.rule=Host(`${HOST_PROMETHEUS?}`)
+      - traefik.http.routers.prometheus.tls.certresolver=le
+    networks:
+      - traefik
+
+  grafana:
+    image: grafana/grafana
+    restart: always
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.grafana.loadbalancer.server.port=3000
+      - traefik.http.routers.grafana.rule=Host(`${HOST_GRAFANA?}`)
+      - traefik.http.routers.grafana.tls.certresolver=le
+
+networks:
+  traefik:
+    name: traefik
+
+
+volumes:
+  prometheus_data:
+  grafana-data:
