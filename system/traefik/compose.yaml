@@ -22,12 +22,16 @@ services:
     ports:
       - 80:80
       - 443:443
-      - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - letsencrypt:/letsencrypt
     networks:
       - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.traefik.loadbalancer.server.port=8080
+      - traefik.http.routers.traefik.rule=Host(`${HOST?}`)
+      - traefik.http.routers.traefik.tls.certresolver=le
 
 volumes:
   letsencrypt:
